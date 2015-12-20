@@ -165,7 +165,7 @@ def some_task():
 loop = asyncio.get_event_loop()
 try:
     loop.create_task(some_task())
-    loop.run_until_complete(client.login('creds.discordemail', creds.discordpw))
+    loop.run_until_complete(client.login(creds.discordemail, creds.discordpw))
     loop.run_until_complete(client.connect())
 except Exception:
     loop.run_until_complete(client.close())
