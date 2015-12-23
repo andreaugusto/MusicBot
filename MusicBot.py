@@ -235,8 +235,13 @@ def playlist_update():
 
 loop = asyncio.get_event_loop()
 try:
+<<<<<<< HEAD
     loop.create_task(playlist_update())
     loop.run_until_complete(client.login(creds.discordid, creds.discordpw))
+=======
+    loop.create_task(some_task())
+    loop.run_until_complete(client.login(creds.discordemail, creds.discordpw))
+>>>>>>> 9af72997340f06240bb3ea95347254d355561b39
     loop.run_until_complete(client.connect())
 except Exception:
     loop.run_until_complete(client.close())
