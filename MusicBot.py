@@ -186,7 +186,7 @@ def playlist_update():
     global isPlaying
     global option
     global firstTime
-    yield from client.wait_for_ready()
+    yield from client.wait_until_ready()
     count = 0
     time = 0
     while count!= -1:
