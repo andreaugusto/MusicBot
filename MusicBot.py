@@ -3,17 +3,24 @@ import discord
 import re
 import datetime
 import youtube_dl
-import pafy
+import os
+import traceback
 
 try:
     import creds
 except:
     print("Need valid creds.py to login")
     exit()
+	
+savedir = "playlist"
+if not os.path.exists(savedir):
+	os.makedirs(savedir)
     
 option = 'butts'
 isPlaying = False
 firstTime = True
+
+ownerID = '77511942717046784'
 
 skipCount = 0
 skipperlist = []
@@ -41,10 +48,13 @@ def on_ready():
 @client.async_event
 def on_message(message):
     global option
-    # we do not want the bot to reply to itself
+    global ownerID
+    global firstTime
+    global skipCount
+    global skipperlist
     if message.author == client.user:
         return
-    if '!whitelist' in message.content.lower():
+    if '!whitelist' in message.content.lower() and message.author.id == ownerID:
             msg = message.content
             substrStart = msg.find('!whitelist') + 11
             msg = msg[substrStart: ]
@@ -53,34 +63,30 @@ def on_message(message):
             whitelist.append(msg)
     elif '!play' in message.content.lower():
             discord.opus.load_opus('libopus-0.dll')
-            global firstTime
-            global skipCount
-            global skipperlist
+            
             msg = message.content
             msg2 = msg
             substrStart = msg.find('!play') + 6
             msg = msg[substrStart: ]
             msg.strip()
             sendmsg = False
-            if (message.author.name == 'Weggy' or not is_long_member(message.author.joined_at)) and message.author.id not in whitelist:
+            if (not is_long_member(message.author.joined_at)) and message.author.id not in whitelist:
                 print('no')
             elif msg == 'help':
                 hotsmessage = yield from client.send_message(message.channel,helpmessage)
-            elif message.author.id == '77511942717046784' and firstTime is True:
+            elif message.author.id == ownerID and firstTime is True:
                 vce = yield from client.join_voice_channel(message.author.voice_channel)
                 firstTime = False
                 playlist.append(msg)
             elif msg == 'playlist':
-                endmsg = ''
-                count = 0
-                for things in playlist:
-                    count+=1
-                    endmsg =endmsg +str(count) + ": "+ things + " \n"
+                endmsg = getPlaylist()
+                #for things in playlist:
+                #    count+=1
+                #    endmsg =endmsg +str(count) + ": "+ things + " \n"
                 sendmsg = True
-                buttmsg = discord.utils.get(client.servers[0].channels, name='general')
-                hotsmessage = yield from client.send_message(buttmsg,endmsg)
+                hotsmessage = yield from client.send_message(message.channel,endmsg)
             elif msg == 'skip':
-                if message.author.id == '77511942717046784':
+                if message.author.id == ownerID:
                     skipperlist = []
                     skipCount = 0
                     option = 'skip'
@@ -110,8 +116,74 @@ def is_long_member(dateJoined):
     margin = datetime.timedelta(days = 2)
     return today - margin > convDT
 
+def getPlaylist():
+    endmsg = ''
+    count = 0
+    for things in playlist:
+        if '&' in things:
+            substrStart = things.find('&')
+            fixedThings = things[ :substrStart]
+            fixedThings.strip()
+        else:
+            fixedThings = things
+        options = {
+                'format': 'bestaudio/best',
+                'extractaudio' : True,
+                'audioformat' : "mp3",
+                'outtmpl': '%(id)s',
+                'noplaylist' : True,}
+        ydl = youtube_dl.YoutubeDL(options)
+        try:
+            info = ydl.extract_info(fixedThings, download=False)
+            title = info['title']
+        except Exception as e:
+            print('cannot access information')
+            title = 'ERROR: Title is actual dicks.'
+        count+=1
+        endmsg =endmsg +str(count) + ": "+ title + " \n"
+    return endmsg
+
+def make_savepath(title, savedir=savedir):
+    return os.path.join(savedir, "%s.mp3" % (title))
+
+def download_song(unfixedsongURL):
+    if '&' in unfixedsongURL:
+        substrStart = unfixedsongURL.find('&')
+        songURL = unfixedsongURL[ :substrStart]
+        songURL.strip()
+    else:
+        songURL = unfixedsongURL
+    print('at start o download')
+    options = {
+	    'format': 'bestaudio/best',
+	    'extractaudio' : True,
+	    'audioformat' : "mp3",
+	    'outtmpl': '%(id)s',
+	    'noplaylist' : True,}
+    ydl = youtube_dl.YoutubeDL(options)
+    try:
+        print('trying first meal')
+        info = ydl.extract_info(songURL, download=False)
+        savepath = make_savepath(info['title'])
+    except Exception as e:
+        print('cannot access information')
+        return 'butts!'
+    try:
+        os.stat(savepath)
+        print ("%s already downloaded, continuing..." % savepath)
+        return savepath
+    except OSError:
+        try:
+            result = ydl.extract_info(songURL, download=True)
+            os.rename(result['id'], savepath)
+            print ("Downloaded and converted %s successfully!" % savepath)
+            
+            return savepath
+        except Exception as e:
+            print ("Can't download audio! %s\n" % traceback.format_exc())
+            return 'butts!'
 @asyncio.coroutine
-def some_task():
+def playlist_update():
     #print('ding')
     global isPlaying
     global option
@@ -125,35 +197,34 @@ def some_task():
                 print('ding')
                 vce = client.voice
                 thing = playlist[0]
-                try: 
-                    player = vce.create_ytdl_player(thing)
-                    player.start()
-                    isPlaying = True
-                    while thing in playlist: playlist.remove(thing)
-                    option = 'sleep'
-                    count+=1
+                try:
+                    print('going into download')
+                    path = download_song(thing)
+                    if path!='butts!':
+                        player = vce.create_ffmpeg_player(path)
+                        player.start()
+                        isPlaying = True
+                        while thing in playlist: playlist.remove(thing)
+                        option = 'sleep'
                 except:
-                    genchan = discord.utils.get(client.servers[0].channels, name='general')
-                    yield from client.send_message(genchan,'you crashed me')
+                    print('am ded')
                     while thing in playlist: playlist.remove(thing)
             else:
                 thing = 'https://www.youtube.com/watch?v=vWuQVpBeqLs'
                 try:
-                    player = vce.create_ytdl_player(thing,)
-                    player.start()
-                    isPlaying = True
-                    while thing in playlist: playlist.remove(thing)
-                    option = 'sleep'
-                    count+=1
+                    path = download_song(thing)
+                    if path!='butts!':
+                        player = vce.create_ffmpeg_player(path)
+                        player.start()
+                        isPlaying = True
+                        while thing in playlist: playlist.remove(thing)
+                        option = 'sleep'
                 except:
-                    genchan = discord.utils.get(client.servers[0].channels, name='general')
-                    #yield from client.send_message(genchan,'you crashed me')
                     print('am ded')
                     while thing in playlist: playlist.remove(thing)
         if option == 'sleep' or option == 'skip':
             cnt = 0
             while option!='skip' and player.is_playing():
-                #print('big butts')
                 cnt+=1
                 yield from asyncio.sleep(1)
             player.stop()
@@ -164,8 +235,8 @@ def some_task():
 
 loop = asyncio.get_event_loop()
 try:
-    loop.create_task(some_task())
-    loop.run_until_complete(client.login('macw713+RhinoBot@gmail.com', creds.discordpw))
+    loop.create_task(playlist_update())
+    loop.run_until_complete(client.login(creds.discordid, creds.discordpw))
     loop.run_until_complete(client.connect())
 except Exception:
     loop.run_until_complete(client.close())
