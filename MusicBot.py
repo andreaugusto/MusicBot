@@ -56,7 +56,7 @@ def on_message(message):
     if message.author == client.user:
         return
     if '!whatismyuserid' in message.content.lower():
-        print(message.user.id)
+        print(message.author.id)
     if '!whitelist' in message.content.lower() and message.author.id == ownerID:
             msg = message.content
             substrStart = msg.find('!whitelist') + 11
