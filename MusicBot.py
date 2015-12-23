@@ -22,6 +22,7 @@ firstTime = True
 
 ownerID = '77511942717046784'
 
+skipsRequired = 2
 skipCount = 0
 skipperlist = []
 
@@ -54,6 +55,8 @@ def on_message(message):
     global skipperlist
     if message.author == client.user:
         return
+    if '!whatismyuserid' in message.content.lower():
+        print(message.user.id)
     if '!whitelist' in message.content.lower() and message.author.id == ownerID:
             msg = message.content
             substrStart = msg.find('!whitelist') + 11
@@ -91,13 +94,12 @@ def on_message(message):
                     skipCount = 0
                     option = 'skip'
                 elif message.author.id not in skipperlist:
-                    print('skip increased by 1')
-                    print(skipCount)
                     skipperlist.append(message.author.id)
                     skipCount+=1
+                    print('Skip Vote by `'+message.author.name+'` to a total of `'+str(skipCount)+'/'+str(skipsRequired)+'`')
                 else:
                     print('already voted to skip')
-                if skipCount > 1:
+                if skipCount >= skipsRequired:
                     skipperlist = []
                     skipCount = 0
                     option = 'skip'
@@ -137,7 +139,7 @@ def getPlaylist():
             info = ydl.extract_info(fixedThings, download=False)
             title = info['title']
         except Exception as e:
-            print('cannot access information')
+            print("Can't access song! %s\n" % traceback.format_exc())
             title = 'ERROR: Title is actual dicks.'
         count+=1
         endmsg =endmsg +str(count) + ": "+ title + " \n"
@@ -153,7 +155,6 @@ def download_song(unfixedsongURL):
         songURL.strip()
     else:
         songURL = unfixedsongURL
-    print('at start o download')
     options = {
 	    'format': 'bestaudio/best',
 	    'extractaudio' : True,
@@ -162,21 +163,18 @@ def download_song(unfixedsongURL):
 	    'noplaylist' : True,}
     ydl = youtube_dl.YoutubeDL(options)
     try:
-        print('trying first meal')
         info = ydl.extract_info(songURL, download=False)
         savepath = make_savepath(info['title'])
     except Exception as e:
-        print('cannot access information')
+        print("Can't access song! %s\n" % traceback.format_exc())
         return 'butts!'
     try:
         os.stat(savepath)
-        print ("%s already downloaded, continuing..." % savepath)
         return savepath
     except OSError:
         try:
             result = ydl.extract_info(songURL, download=True)
             os.rename(result['id'], savepath)
-            print ("Downloaded and converted %s successfully!" % savepath)
             
             return savepath
         except Exception as e:
@@ -194,11 +192,9 @@ def playlist_update():
     while count!= -1:
         if isPlaying is False and firstTime is False:
             if playlist:
-                print('ding')
                 vce = client.voice
                 thing = playlist[0]
                 try:
-                    print('going into download')
                     path = download_song(thing)
                     if path!='butts!':
                         player = vce.create_ffmpeg_player(path)
@@ -207,10 +203,9 @@ def playlist_update():
                         while thing in playlist: playlist.remove(thing)
                         option = 'sleep'
                 except:
-                    print('am ded')
                     while thing in playlist: playlist.remove(thing)
             else:
-                thing = 'https://www.youtube.com/watch?v=vWuQVpBeqLs'
+                thing = 'https://www.youtube.com/watch?v=DOqb_UzJSUQ'
                 try:
                     path = download_song(thing)
                     if path!='butts!':
@@ -220,7 +215,6 @@ def playlist_update():
                         while thing in playlist: playlist.remove(thing)
                         option = 'sleep'
                 except:
-                    print('am ded')
                     while thing in playlist: playlist.remove(thing)
         if option == 'sleep' or option == 'skip':
             cnt = 0
@@ -230,18 +224,12 @@ def playlist_update():
             player.stop()
             isPlaying = False
         else:
-            print('dong')
             yield from asyncio.sleep(1)
 
 loop = asyncio.get_event_loop()
 try:
-<<<<<<< HEAD
     loop.create_task(playlist_update())
     loop.run_until_complete(client.login(creds.discordid, creds.discordpw))
-=======
-    loop.create_task(some_task())
-    loop.run_until_complete(client.login(creds.discordemail, creds.discordpw))
->>>>>>> 9af72997340f06240bb3ea95347254d355561b39
     loop.run_until_complete(client.connect())
 except Exception:
     loop.run_until_complete(client.close())
