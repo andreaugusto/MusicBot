@@ -75,20 +75,20 @@ def on_message(message):
             sendmsg = False
             if (not is_long_member(message.author.joined_at)) and message.author.id not in whitelist:
                 print('no')
-            elif msg == 'help':
+            elif msg.lower() == 'help':
                 hotsmessage = yield from client.send_message(message.channel,helpmessage)
             elif message.author.id == ownerID and firstTime is True:
                 vce = yield from client.join_voice_channel(message.author.voice_channel)
                 firstTime = False
                 playlist.append(msg)
-            elif msg == 'playlist':
+            elif msg.lower() == 'playlist':
                 endmsg = getPlaylist()
                 #for things in playlist:
                 #    count+=1
                 #    endmsg =endmsg +str(count) + ": "+ things + " \n"
                 sendmsg = True
                 hotsmessage = yield from client.send_message(message.channel,endmsg)
-            elif msg == 'skip':
+            elif msg.lower() == 'skip':
                 if message.author.id == ownerID:
                     skipperlist = []
                     skipCount = 0
