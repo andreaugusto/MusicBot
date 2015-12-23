@@ -202,6 +202,8 @@ def playlist_update():
                         isPlaying = True
                         while thing in playlist: playlist.remove(thing)
                         option = 'sleep'
+                    else:
+                        while thing in playlist: playlist.remove(thing)
                 except:
                     while thing in playlist: playlist.remove(thing)
             else:
