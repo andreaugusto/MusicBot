@@ -35,7 +35,7 @@ isPlaying = False
 firstTime = True
 
 ownerID = options[4]
-skipsRequired = options[5]
+skipsRequired = int(options[5])
 skipCount = 0
 skipperlist = []
 
@@ -194,7 +194,8 @@ def download_song(unfixedsongURL):
 	    'extractaudio' : True,
 	    'audioformat' : "mp3",
 	    'outtmpl': '%(id)s',
-	    'noplaylist' : True,}
+	    'noplaylist' : True,
+            'nocheckcertificate' : True,}
     ydl = youtube_dl.YoutubeDL(options)
     try:
         info = ydl.extract_info(songURL, download=False)
