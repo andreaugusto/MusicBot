@@ -6,12 +6,6 @@ import youtube_dl
 import os
 import traceback
 
-try:
-    import creds
-except:
-    print("Need valid creds.py to login")
-    exit()
-
 if not discord.opus.is_loaded():
     discord.opus.load_opus('libopus-0.dll')
 
@@ -40,8 +34,8 @@ option = 'butts'
 isPlaying = False
 firstTime = True
 
-ownerID = options[2]
-skipsRequired = options[3]
+ownerID = options[4]
+skipsRequired = options[5]
 skipCount = 0
 skipperlist = []
 
@@ -104,7 +98,7 @@ def on_message(message):
             sendmsg = False
             if message.author.id in blacklist :
                 print('no, blacklisted')
-            elif (options[0]=='1' and not is_long_member(message.author.joined_at)) and message.author.id not in whitelist:
+            elif (options[2]=='1' and not is_long_member(message.author.joined_at)) and message.author.id not in whitelist:
                 print('no, not whitelisted and new')
             elif msg.lower() == 'help':
                 hotsmessage = yield from client.send_message(message.channel,helpmessage)
@@ -271,7 +265,7 @@ def playlist_update():
 loop = asyncio.get_event_loop()
 try:
     loop.create_task(playlist_update())
-    loop.run_until_complete(client.login(creds.discordid, creds.discordpw))
+    loop.run_until_complete(client.login(options[0], options[1]))
     loop.run_until_complete(client.connect())
 except Exception:
     loop.run_until_complete(client.close())
