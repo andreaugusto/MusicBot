@@ -169,6 +169,7 @@ def getPlaylist():
         try:
             info = ydl.extract_info(fixedThings, download=False)
             title = info['title']
+            
         except Exception as e:
             print("Can't access song! %s\n" % traceback.format_exc())
             title = 'ERROR: Title is actual dicks.'
@@ -199,7 +200,10 @@ def download_song(unfixedsongURL):
     ydl = youtube_dl.YoutubeDL(options)
     try:
         info = ydl.extract_info(songURL, download=False)
-        savepath = make_savepath(info['title'])
+        title = info['title']
+        title = title.replace('/', '')
+        title = title.replace('\\', '')
+        savepath = make_savepath(title)
     except Exception as e:
         print("Can't access song! %s\n" % traceback.format_exc())
         return 'butts!'
