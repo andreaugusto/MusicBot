@@ -1,6 +1,8 @@
 # MusicBot
 
-`!whatismyid` will tell you your user ID!
+`!whatismyuserid` will tell you your user ID!
+
+`!whitelist` will whitelist people (and you if the server is new!) so they can play music
 
 `!play help` will summon a list of commands accepted by the bot!
 
