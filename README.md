@@ -28,7 +28,7 @@ Line 1: Email address
 
 Line 2: Password
 
-Line 3: accepts "0" or "1", determines if it checks the amount of days a user have been in the discord (0 turning this check off, 1 turning it on) 
+Line 3: accepts "0" or "1", enables or disables the whitelist. 0 turning it off, 1 turning it on
 
 Line 4: the number of days until a person can freely interact with the bot and not be on the whitelist
 
