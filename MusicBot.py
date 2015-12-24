@@ -89,6 +89,14 @@ def on_message(message):
             f.write(msg + "\r")
             f.close()
             blacklist.append(msg)
+    elif '!servers' in message.content.lower():
+        count=0
+        for servers in client.servers:
+            count+=1
+        if count > 1:
+            yield from client.send_message(message.channel,'I DIDN\'T LISTEN TO DIRECTIONS AND HAVE MY BOT ON MORE THAN ONE SERVER')
+        else:
+            print('you good')
     elif '!play' in message.content.lower():
             msg = message.content
             msg2 = msg
