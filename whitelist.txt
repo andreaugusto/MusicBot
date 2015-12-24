@@ -1,21 +1,1 @@
-77511942717046784 in message.content.lower() and message.author.id == ownerID:
-            msg = message.content
-            substrStart = msg.find('!whitelist') + 11
-            msg = msg[substrStart: ]
-            msg.strip()
-            msg = re.sub('||', '', msg)
-            f = open('whitelist.txt', 'a')
-            f.write(msg + "\r")
-            f.close()
-            whitelist.append(msg)
-    elif '!blacklist' in message.content.lower() and message.author.id == ownerID:
-            msg = message.content
-            substrStart = msg.find('!blacklist') + 11
-            msg = msg[substrStart: ]
-            msg.strip()
-            msg = re.sub('||', '', msg)
-            f = open('blacklist.txt', 'a')
-            f.write(msg + "\r")
-            f.close()
-            blacklist.append(msg)
-```
+
