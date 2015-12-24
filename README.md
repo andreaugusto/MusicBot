@@ -23,14 +23,18 @@ Make sure you meet the non-code requirements of having existing accounts for
 both discord.
 
 ##Options.txt set up
-  
-Line 1: accepts "0" or "1", determines if it checks the amount of days a user have been in the discord (0 turning this check off, 1 turning it on) 
 
-Line 2: the number of days until a person can freely interact with the bot and not be on the whitelist
+Line 1: Email address
 
-Line 3: The Owner's User ID
+Line 2: Password
 
-Line 4: The number of votes to skip for it to actually skip
+Line 3: accepts "0" or "1", determines if it checks the amount of days a user have been in the discord (0 turning this check off, 1 turning it on) 
+
+Line 4: the number of days until a person can freely interact with the bot and not be on the whitelist
+
+Line 5: The Owner's User ID
+
+Line 6: The number of votes to skip for it to actually skip
 
 
 ## What are its commands?
