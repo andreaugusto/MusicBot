@@ -11,6 +11,26 @@ try:
 except:
     print("Need valid creds.py to login")
     exit()
+
+if not discord.opus.is_loaded():
+    discord.opus.load_opus('libopus-0.dll')
+
+try:
+    with open('blacklist.txt') as f:
+        blacklist = f.readlines()
+    for i, item in enumerate(blacklist):
+        whitelist[i] = item.rstrip()
+    with open('whitelist.txt') as f:
+        whitelist = f.readlines()
+    for i, item in enumerate(whitelist):
+        whitelist[i] = item.rstrip()
+    with open('options.txt') as f:
+        options = f.readlines()
+    for i, item in enumerate(options):
+        options[i] = item.rstrip()
+except:
+    print('one of the text files was deleted, reinstall')
+
 	
 savedir = "playlist"
 if not os.path.exists(savedir):
@@ -20,20 +40,16 @@ option = 'butts'
 isPlaying = False
 firstTime = True
 
-ownerID = '77511942717046784'
-
-skipsRequired = 2
+ownerID = options[2]
+skipsRequired = options[3]
 skipCount = 0
 skipperlist = []
 
 playlist = []
+currentlyPlaying = ''
 
 helpmessage = '`!play [youtube link]` will allow me to play a new song or add it to the queue.\n`!play playlist` will print out all links to youtube videos currently in the queue!\n`!play skip` will make it skip to the next song after 4 people vote to skip the current one!'
 
-with open('whitelist.txt') as f:
-    whitelist = f.readlines()
-for i, item in enumerate(whitelist):
-    whitelist[i] = item.rstrip()
 
 client = discord.Client()
 
@@ -55,6 +71,8 @@ def on_message(message):
     global skipperlist
     if message.author == client.user:
         return
+    if message.channel.is_private:
+        yield from client.send_message(message.channel, 'You cannot use this bot in private messages.')
     if '!whatismyuserid' in message.content.lower():
         print(message.author.id)
     if '!whitelist' in message.content.lower() and message.author.id == ownerID:
@@ -63,29 +81,42 @@ def on_message(message):
             msg = msg[substrStart: ]
             msg.strip()
             msg = re.sub('<|@|>', '', msg)
+            f = open('whitelist.txt', 'a')
+            f.write(msg + "\r")
+            f.close()
             whitelist.append(msg)
+    elif '!blacklist' in message.content.lower() and message.author.id == ownerID:
+            msg = message.content
+            substrStart = msg.find('!blacklist') + 11
+            msg = msg[substrStart: ]
+            msg.strip()
+            msg = re.sub('<|@|>', '', msg)
+            f = open('blacklist.txt', 'a')
+            f.write(msg + "\r")
+            f.close()
+            blacklist.append(msg)
     elif '!play' in message.content.lower():
-            discord.opus.load_opus('libopus-0.dll')
-            
             msg = message.content
             msg2 = msg
             substrStart = msg.find('!play') + 6
             msg = msg[substrStart: ]
             msg.strip()
             sendmsg = False
-            if (not is_long_member(message.author.joined_at)) and message.author.id not in whitelist:
-                print('no')
+            if message.author.id in blacklist :
+                print('no, blacklisted')
+            elif (options[0]=='1' and not is_long_member(message.author.joined_at)) and message.author.id not in whitelist:
+                print('no, not whitelisted and new')
             elif msg.lower() == 'help':
                 hotsmessage = yield from client.send_message(message.channel,helpmessage)
             elif message.author.id == ownerID and firstTime is True:
                 vce = yield from client.join_voice_channel(message.author.voice_channel)
                 firstTime = False
                 playlist.append(msg)
+            elif msg.lower() == 'move' and message.author.id == ownerID:
+                yield from client.voice.disconnect()
+                vce = yield from client.join_voice_channel(message.author.voice_channel)
             elif msg.lower() == 'playlist':
                 endmsg = getPlaylist()
-                #for things in playlist:
-                #    count+=1
-                #    endmsg =endmsg +str(count) + ": "+ things + " \n"
                 sendmsg = True
                 hotsmessage = yield from client.send_message(message.channel,endmsg)
             elif msg.lower() == 'skip':
@@ -106,7 +137,10 @@ def on_message(message):
             else:
                 playlist.append(msg)
             yield from asyncio.sleep(5)
-            yield from client.delete_message(message)
+            try:
+                yield from client.delete_message(message)
+            except:
+                print('Couldn\'t delete message for some reason')
             if sendmsg is True:
                 sendmsg = False
                 yield from asyncio.sleep(10)
@@ -115,17 +149,19 @@ def on_message(message):
 def is_long_member(dateJoined):
     convDT = dateJoined.date()
     today = datetime.date.today()
-    margin = datetime.timedelta(days = 2)
+    optDays = option[1]
+    margin = datetime.timedelta(days = int(options[1]))
     return today - margin > convDT
 
 def getPlaylist():
     endmsg = ''
     count = 0
     for things in playlist:
-        if '&' in things:
-            substrStart = things.find('&')
-            fixedThings = things[ :substrStart]
-            fixedThings.strip()
+        if 'youtube' in things:
+            if '&' in things:
+                substrStart = things.find('&')
+                fixedThings = things[ :substrStart]
+                fixedThings.strip()
         else:
             fixedThings = things
         options = {
@@ -133,7 +169,8 @@ def getPlaylist():
                 'extractaudio' : True,
                 'audioformat' : "mp3",
                 'outtmpl': '%(id)s',
-                'noplaylist' : True,}
+                'noplaylist' : True,
+                'nocheckcertificate' : True,}
         ydl = youtube_dl.YoutubeDL(options)
         try:
             info = ydl.extract_info(fixedThings, download=False)
@@ -149,10 +186,13 @@ def make_savepath(title, savedir=savedir):
     return os.path.join(savedir, "%s.mp3" % (title))
 
 def download_song(unfixedsongURL):
-    if '&' in unfixedsongURL:
-        substrStart = unfixedsongURL.find('&')
-        songURL = unfixedsongURL[ :substrStart]
-        songURL.strip()
+    if 'youtube' in unfixedsongURL:
+        if '&' in unfixedsongURL:
+            substrStart = unfixedsongURL.find('&')
+            songURL = unfixedsongURL[ :substrStart]
+            songURL.strip()
+        else:
+            songURL = unfixedsongURL
     else:
         songURL = unfixedsongURL
     options = {
