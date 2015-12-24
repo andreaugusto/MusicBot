@@ -11,3 +11,6 @@
 `!play playlist` will print out all links to youtube videos currently in the queue!
 
 `!play skip` will make it skip to the next song after 4 people vote to skip the current one!
+
+"HELP ITS STILL BROKEN!"|
+Join my discord if you need help! : https://discord.gg/0iqN3da4zqrPzOjp
