@@ -56,3 +56,23 @@ It'll let you know if it's connected and what channels are connected.
 Once started, its good to go. If you have any errors, report them here or on my discord and then restart the bot
 
 Rhino Bot Discord - https://discord.gg/0iqN3da4zqrPzOjp
+
+#FAQ
+
+Q:`'pip' is not recognized as an internal or external command`
+
+A: http://stackoverflow.com/questions/23708898/pip-is-not-recognized-as-an-internal-or-external-command
+
+Q:`Bot prints 'no, not whitelisted and new' when I try and play something`
+
+A: Add yourself to the whitelist!
+
+Q:`I'm getting this error! http://puu.sh/m6hkf/40eec0910c.png`
+A: The bot needs permission to delete messages. I'll be adding an options file to toggle this later though
+
+Q: `I'm having an issue with the Discord installation / It doesn't say anything when I run it`
+A: Run `fixnupdate.bat`
+
+Q:`I'm having other errors with the bot, it has to be broken`
+A: If Rhinobot is running in my discord, the bot isn't broken. I keep everything as updated as possible! 
+
