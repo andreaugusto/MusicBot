@@ -36,9 +36,9 @@ Line 4: The number of votes to skip for it to actually skip
 
 `!whatismyuserid` will tell you your user ID!
 
-`!whitelist` will whitelist people (and you if the server is new!) so they can play music
+`!whitelist [@username]` will whitelist people (and you if the server is new!) so they can play music
 
-`!blacklist` will disallow a person from interacting with the bot!
+`!blacklist [@username]` will disallow a person from interacting with the bot!
 
 `!play help` will summon a list of commands accepted by the bot!
 
