@@ -110,9 +110,13 @@ def on_message(message):
                 yield from client.voice.disconnect()
                 vce = yield from client.join_voice_channel(message.author.voice_channel)
             elif msg.lower() == 'playlist':
-                endmsg = getPlaylist()
+                endmsg = currentlyPlaying
+                endmsg = endmsg + getPlaylist()
                 sendmsg = True
-                hotsmessage = yield from client.send_message(message.channel,endmsg)
+                if(endmsg == ''):
+                    hotsmessage = yield from client.send_message(message.channel,'There is currently nothing left in the playlist')
+                else:
+                    hotsmessage = yield from client.send_message(message.channel,endmsg)
             elif msg.lower() == 'skip':
                 if message.author.id == ownerID:
                     skipperlist = []
@@ -130,6 +134,7 @@ def on_message(message):
                     option = 'skip'
             else:
                 playlist.append(msg)
+                fixPlaylist()
             yield from asyncio.sleep(5)
             try:
                 yield from client.delete_message(message)
@@ -146,6 +151,30 @@ def is_long_member(dateJoined):
     optDays = option[1]
     margin = datetime.timedelta(days = int(options[1]))
     return today - margin > convDT
+
+def fixPlaylist():
+    for things in playlist:
+        if 'youtube' in things:
+            if '&' in things:
+                substrStart = things.find('&')
+                fixedThings = things[ :substrStart]
+                fixedThings.strip()
+            else:
+                fixedThings = things
+        else:
+            fixedThings = things
+        options = {
+                'format': 'bestaudio/best',
+                'extractaudio' : True,
+                'audioformat' : "mp3",
+                'outtmpl': '%(id)s',
+                'noplaylist' : True,
+                'nocheckcertificate' : True,}
+        ydl = youtube_dl.YoutubeDL(options)
+        try:
+            info = ydl.extract_info(fixedThings, download=False)
+        except Exception as e:
+            while fixedThings in playlist: playlist.remove(fixedThings)
 
 def getPlaylist():
     endmsg = ''
@@ -183,6 +212,7 @@ def make_savepath(title, savedir=savedir):
     return os.path.join(savedir, "%s.mp3" % (title))
 
 def download_song(unfixedsongURL):
+    global currentlyPlaying
     if 'youtube' in unfixedsongURL:
         if '&' in unfixedsongURL:
             substrStart = unfixedsongURL.find('&')
@@ -203,6 +233,7 @@ def download_song(unfixedsongURL):
     try:
         info = ydl.extract_info(songURL, download=False)
         title = info['title']
+        currentlyPlaying = 'Now: ' + title + '\n'
         title = title.replace('/', '')
         title = title.replace('\\', '')
         savepath = make_savepath(title)
@@ -216,7 +247,6 @@ def download_song(unfixedsongURL):
         try:
             result = ydl.extract_info(songURL, download=True)
             os.rename(result['id'], savepath)
-            
             return savepath
         except Exception as e:
             print ("Can't download audio! %s\n" % traceback.format_exc())
@@ -227,6 +257,7 @@ def playlist_update():
     global isPlaying
     global option
     global firstTime
+    global currentlyPlaying
     yield from client.wait_until_ready()
     count = 0
     time = 0
@@ -239,6 +270,7 @@ def playlist_update():
                     path = download_song(thing)
                     if path!='butts!':
                         player = vce.create_ffmpeg_player(path)
+                        
                         player.start()
                         isPlaying = True
                         while thing in playlist: playlist.remove(thing)
@@ -248,7 +280,7 @@ def playlist_update():
                 except:
                     while thing in playlist: playlist.remove(thing)
             else:
-                thing = 'https://www.youtube.com/watch?v=DOqb_UzJSUQ'
+                thing = 'https://www.youtube.com/watch?v=1VXMLuZkq1g'
                 try:
                     path = download_song(thing)
                     if path!='butts!':
@@ -265,6 +297,7 @@ def playlist_update():
                 cnt+=1
                 yield from asyncio.sleep(1)
             player.stop()
+            currentlyPlaying = ''
             isPlaying = False
         else:
             yield from asyncio.sleep(1)
