@@ -156,6 +156,8 @@ def getPlaylist():
                 substrStart = things.find('&')
                 fixedThings = things[ :substrStart]
                 fixedThings.strip()
+            else:
+                fixedThings = things
         else:
             fixedThings = things
         options = {
