@@ -11,6 +11,7 @@ Install Python here - https://www.python.org/downloads/
 Install Git here - https://git-scm.com/download/win
 
 make sure you select this option in the Python install - https://i.gyazo.com/2c06a7ee35afda3383185916fd2a94d3.png
+
 and this option in the Git install - https://cdn.discordapp.com/attachments/129489631539494912/129505383223001088/pic.png
 
 It was coded in 3.5.1 but 3.5 will work fine.
