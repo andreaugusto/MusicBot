@@ -244,6 +244,7 @@ def download_song(unfixedsongURL):
         currentlyPlaying = 'Now: ' + title + '\n'
         title = title.replace('/', '')
         title = title.replace('\\', '')
+        title = title.replace(':', '')
         savepath = make_savepath(title)
     except Exception as e:
         print("Can't access song! %s\n" % traceback.format_exc())
