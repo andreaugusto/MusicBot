@@ -160,6 +160,21 @@ def is_long_member(dateJoined):
     margin = datetime.timedelta(days = int(options[1]))
     return today - margin > convDT
 
+def do_format(message):
+    replacements = ( ('4','a'), ('3','e'), ('1','l'), ('0','o'), ('7','t') )
+    endMsg = re.sub('À|à|Á|á|Â|â|Ã|ã|Ä|ä', 'a', message)
+    endMsg = re.sub('È|è|É|é|Ê|ê|Ë|ë', 'e', endMsg)
+    endMsg = re.sub('Ì|ì|Í|í|Î|î|Ï|ï', 'i', endMsg)
+    endMsg = re.sub('Ò|ò|Ó|ó|Ô|ô|Õ|õ|Ö', 'o', endMsg)
+    endMsg = re.sub('Ù|ù|Ú|ú|Û|û|Ü|ü', 'u', endMsg)
+    endMsg = re.sub('Ý|ý|Ÿ|ÿ', 'y', endMsg)
+    endMsg = re.sub('Ñ|ñ', 'n', endMsg)
+    for old, new in replacements:
+        endMsg = endMsg.replace(old, new)
+    endMsg = re.sub('[^0-9a-zA-Z]+', '', endMsg)
+    endMsg = re.sub(r'([a-z])\1+', r'\1', endMsg)
+    return endMsg
+
 def fixPlaylist():
     for things in playlist:
         if 'youtube' in things:
@@ -242,9 +257,7 @@ def download_song(unfixedsongURL):
         info = ydl.extract_info(songURL, download=False)
         title = info['title']
         currentlyPlaying = 'Now: ' + title + '\n'
-        title = title.replace('/', '')
-        title = title.replace('\\', '')
-        title = title.replace(':', '')
+        title = do_format(title)
         savepath = make_savepath(title)
     except Exception as e:
         print("Can't access song! %s\n" % traceback.format_exc())
