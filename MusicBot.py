@@ -156,8 +156,8 @@ def on_message(message):
 def is_long_member(dateJoined):
     convDT = dateJoined.date()
     today = datetime.date.today()
-    optDays = option[1]
-    margin = datetime.timedelta(days = int(options[1]))
+    optDays = option[3]
+    margin = datetime.timedelta(days = int(options[3]))
     return today - margin > convDT
 
 def do_format(message):
