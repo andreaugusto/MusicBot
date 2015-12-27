@@ -60,7 +60,7 @@ It'll let you know if it's connected and what channels are connected.
 
 Once started, its good to go. If you have any errors, report them here or on my discord and then restart the bot
 
-Rhino Bot Discord - https://discord.gg/0iqN3da4zqrPzOjp
+Rhino Bot Discord - https://discord.gg/0iqN3da4zqrSz036
 
 #FAQ
 
